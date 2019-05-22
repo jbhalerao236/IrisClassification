@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Collections;
 
 import processing.core.PApplet;
@@ -36,8 +37,8 @@ public class PerceptronVisualizer extends PApplet {
 		for (int i = 0; i < n; i++) {
 			DataSet.DataPoint p = data.getData().get(i);
 			float[] input = {p.getData(0), p.getData(1)};
-			
-			int guess = nn.guess(input);
+
+			int guess = (nn.guess(input) > 0.5 ? 1 : 0);
 
 			int color = (guess == 1 && nn.getCorrectGuess(p.getLabelString())==1) ? color(0, 255, 0) : color(255, 0, 0);
 
@@ -78,7 +79,8 @@ public class PerceptronVisualizer extends PApplet {
 		fill(0);
 		text(displayString, centerX - 130, centerY);
 
-		int guess = nn.guess(new float[] { current.getData(0), current.getData(1) });
+		int guess = (nn.guess(new float[] { current.getData(0), current.getData(1) }) > 0.5 ? 1 : 0);
+
 
 		textSize(40);
 		int color = (guess == 1 && nn.getCorrectGuess(current.getLabelString())==1) ? color(0, 180, 0) : color(255, 0, 0);
@@ -108,10 +110,10 @@ public class PerceptronVisualizer extends PApplet {
 				current = data.getData().get(rowHighlight);
 			}
 		}
-		
+
 		if (key == 't') {
 			float[] input = {current.getData(0), current.getData(1)};
-			nn.train(input, current.getLabelString());
+			nn.train((ArrayList<DataSet.DataPoint>) data.getData(), Main.features);
 		}
 	}
 

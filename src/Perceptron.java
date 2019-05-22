@@ -1,3 +1,6 @@
+import org.omg.CORBA.DATA_CONVERSION;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Perceptron {
@@ -6,7 +9,7 @@ public class Perceptron {
     private float THRESHOLD = 0;
 
     private String classifyForLabel; // this is a classifier for eg "virginica"
-    private float learningRate = 0.005f;
+    private float learningRate = 0.01f;
 
     public Perceptron(int numInputs, String whatToClassify) {
         this.classifyForLabel = whatToClassify;
@@ -15,43 +18,62 @@ public class Perceptron {
     }
 
     private float[] initWeights(int numInputs) {
-        // TODO:  initialize the weights
-        return null;
+        float[] out = new float[numInputs];
+        for (int i = 0; i < numInputs; i++) {
+            out[i] = -0.5f;
+        }
+        return out;
     }
 
     /***
      * Train the perceptron using the input feature vector and its correct label.
      * Return true if there was a non-zero error and training occured (weights got adjusted)
      *
-     * @param input
-     * @param correctLabel
+     * @param batch
+     * @param features
      * @return
      */
-    public boolean train(float[] input, String correctLabel) {
-        // TODO:  Implement this.
+    public boolean train(ArrayList<DataSet.DataPoint> batch, String[] features) {
+        float[] weightUpdates = new float[features.length];
+        float thresholdUpdate = 0;
 
-        // run the perceptron on the input
-        // compare the guess with the correct label (can use already-made helper method for this).
+        for (DataSet.DataPoint point : batch) {
+            float[] input = point.getData(features);
+            String correctLabel = point.getLabelString();
 
-        // If guess was incorrect
-        //    update weights and THRESHOLD using learning rule
+            float prediction = guess(input);
+            int correctAnswer = getCorrectGuess(correctLabel);
+            float error = prediction - correctAnswer;
 
-        return false;
-    }
+            if (prediction != correctAnswer) {
+                for (int i = 0; i < weights.length; i++) {
+                    weightUpdates[i] = input[i] * error * prediction * (1 - prediction) * learningRate;
+                }
 
-    public int guess(float[] input) {
-        // TODO:  Implement this.
-        // Do a linear combination of the inputs multiplied by the weights.
-        // Run the sum through the activiationFunction and return the result
-        return -1;
-    }
-
-    private int activationFunction(float sum) {
-        if (sum > THRESHOLD) {
-            return 1;
-        } else {
-            return 0;
+                thresholdUpdate += error * prediction * (1 - prediction) * learningRate;
+            }
         }
+
+        for (int i = 0; i < weights.length; i++) {
+            weights[i] -= weightUpdates[i];
+        }
+        THRESHOLD -= thresholdUpdate;
+
+        return true;
+
+    }
+
+    public float guess(float[] input) {
+        float sum = 0;
+        for (int i = 0; i < input.length; i++) {
+            sum += input[i] * weights[i];
+        }
+
+        return activationFunction(sum);
+    }
+
+    private float activationFunction(float sum) {
+        return (float) (1.0 / (1 + Math.exp(-sum)));
     }
 
     public float[] getWeights() {

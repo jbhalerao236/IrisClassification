@@ -1,5 +1,7 @@
+import java.util.ArrayList;
+
 public class RunMe {
-    public static final String WHAT_TO_CLASSIFY = "virginica";
+    public static final String WHAT_TO_CLASSIFY = "setosa";
     public static final String[] features = {"sepal length", "sepal width"};
     public static void main(String[] args) {
         DataSet dataset;
@@ -21,7 +23,7 @@ public class RunMe {
             String correctLabel = p.getLabelString();
 
             float[] input = p.getData(features);
-            int guess = nn.guess(input);
+            int guess = (nn.guess(input) > 0.5 ? 1 : 0);
 
             if (nn.isGuessCorrect(guess, correctLabel)) {
                 numRight++;
@@ -40,7 +42,7 @@ public class RunMe {
                 String correctLabel = p.getLabelString();
                 float[] input = p.getData(features);
 
-                nn.train(input, correctLabel);
+                nn.train((ArrayList<DataSet.DataPoint>) d.getData(), features);
             }
         }
     }
